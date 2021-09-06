@@ -37,7 +37,6 @@ export default class FavsMeal extends Component {
     }
 
     renderItem =  ({item,index}) => {
-       console.log(item.favs[0])
         return <FavsMealComponent item={item.favs[0]} token={this.state.token}/>
       
         

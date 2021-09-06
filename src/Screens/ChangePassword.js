@@ -79,9 +79,12 @@ export class ChangePassword extends Component {
                         placeholderTextColor={'#302D4C'}
                         value={values.oldpassword}    
                         onChangeText={handleChange('oldpassword')} 
-                    >
-                        
-                    </TextInput>
+                    />
+                     <TouchableOpacity  onPress={()=>this.setState({hidePassword:!this.state.hidePassword})} 
+                                            style={{position:'absolute',right:20,top:height*0.04}}>
+                            <Entypo name={this.state.hidePassword?'eye':'eye-with-line'} size={24} color="black" />
+                        </TouchableOpacity>    
+                    
                     {(errors.oldpassword) && <Text style={styles.error}>{errors.oldpassword}</Text>}        
                     <TextInput 
                         style={styles.input}  
@@ -91,7 +94,7 @@ export class ChangePassword extends Component {
                         onChangeText={handleChange('password')}         
                     />
                     <TouchableOpacity  onPress={()=>this.setState({hidePassword:!this.state.hidePassword})} 
-                                            style={{position:'absolute',right:20,top:15}}>
+                                            style={{position:'absolute',right:20,top:height*0.16}}>
                             <Entypo name={this.state.hidePassword?'eye':'eye-with-line'} size={24} color="black" />
                         </TouchableOpacity> 
                                 
@@ -105,7 +108,7 @@ export class ChangePassword extends Component {
                     />
                     
                         <TouchableOpacity  onPress={()=>this.setState({hidePassword:!this.state.hidePassword})} 
-                                            style={{position:'absolute',right:20,top:30}}>
+                                            style={{position:'absolute',right:20,top:height*0.28}}>
                             <Entypo name={this.state.hidePassword?'eye':'eye-with-line'} size={24} color="black" />
                         </TouchableOpacity>  
                         

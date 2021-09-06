@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Alert, Modal,View,Text,Image,TouchableOpacity,StyleSheet,Dimensions, TextInput, TouchableOpacityComponent } from 'react-native'
-import { Fontisto,Entypo ,MaterialCommunityIcons ,AntDesign,MaterialIcons   } from '@expo/vector-icons'; 
+import { Alert,View,Text,Image,TouchableOpacity,StyleSheet,Dimensions, TextInput, TouchableOpacityComponent } from 'react-native'
+import { Fontisto,Entypo ,MaterialCommunityIcons ,AntDesign,MaterialIcons,Ionicons,Octicons } from '@expo/vector-icons'; 
 const {width,height}=Dimensions.get('window')
 import NavigationService from '../config/NavigationService.js'
 import { inject } from 'mobx-react';
@@ -9,6 +9,9 @@ import {Formik} from 'formik'
 import {Picker} from '@react-native-picker/picker';
 import AxiosBase from '../config/config'
 import {Root,Popup} from 'popup-ui'
+import Select2 from 'react-native-select-two'
+import Modal from 'react-native-modal'
+
 
 @inject('AuthenticateStore')
 class Menu extends Component {
@@ -16,23 +19,39 @@ class Menu extends Component {
         super(props);
         this.state={
             isModalVisible:false,
-            token:''
+            isModalVisibletwo:false,
+            token:'',
+            showSelect:false,
+            showMenu:'flex',
+            ingredientlist:[],
+            searchingredientlist:[]
+            
         }
     }
 
     componentDidMount(){
         const token=this.props.AuthenticateStore.token;
         this.setState({token:token})
+        AxiosBase.get('/api/ingredients/getlist',{headers:{"z-access-token":this.state.token}}).then((res)=>{
+            const ingredientlist=[];
+            res.data.map((i)=>{
+                ingredientlist.push({id:i.name,name:i.name})
+            })
+            this.setState({ingredientlist:ingredientlist})
+
+        }).catch((err)=>{
+            console.log(err);
+        })
+
     }
+  
 
     _handleSubmit=(values)=>{
-        console.log(values.cuisine);
         AxiosBase.get(`/api/meal/cuisine/${values.cuisine}`,{
             headers:{
                 "x-access-token":this.state.token
             }
         }).then((res)=>{
-            console.log(res.data.length);
             if(res.data.length===0){
                 Popup.show({
                     type:'Danger',
@@ -45,12 +64,97 @@ class Menu extends Component {
                 this.setState({isModalVisible:false})
 
             }
+            else{
+                this.setState({isModalVisible:false})
+                NavigationService.navigate('Slider',{data:res.data,token:this.state.token})
+            }
+        }).catch((err)=>{
+            console.log(err);
+        })
+    }
+   
+
+    _getIngredientsMeal=(data)=>{
+       
+
+
+        AxiosBase.post('/api/meal/ingredient',{
+           ingredientlist:data
+        },{
+            headers:{
+                "x-access-token":this.state.token
+            }
+        }).then((res)=>{
+            if(res.data.message)
+            {   
+                this.setState({showSelect:false})
+                setTimeout(() => {
+                    Popup.show({
+                        type:'Danger',
+                        title:'Warning',
+                        button:true,
+                        textBody:'Malzeme seçmelisiniz',
+                        buttonText:'Kapat',
+                        callback:()=>{Popup.hide()}
+                    })
+                }, 500);
+               
+            }
+            else{
+                NavigationService.navigate('Slider',{data:res.data})
+            }
+        }).catch((err)=>{
+            console.log(err);
         })
     }
     render() {
+      
+        if(this.state.showSelect){ 
+             return(    
+            <Root>   
+            <View style={{flex:1,marginTop:height*0.1,alignItems:'center'}}>
+            <Select2 
+            colorTheme={'#2C5530'}
+            style={{width:width*0.8,borderRadius:20}}
+            //tema rengini burdan ayarlayabiliriz.
+            popupTitle={'Malzemeleri Seçiniz'}
+            title={'Malzemeleri Seçiniz'}
+            onSelect={data=>this.setState({searchingredientlist:data})}
+            //seçilen itemi yazar ,çoklu seçim açıksa array döner
+            data={this.state.ingredientlist}
+            //isSelectSingle
+            //isSelectSingle sadece tek seçim yapabilmeyi sağlar
+             onRemoveItem={data=>this.setState({searchingredientlist:data})}
+             //silinen itemleri yakalayabiliriz
+             showSearchBox={true}
+             //showSearchBox ile arama yapma kısmının açıkmı mı kapalımı olmasını
+             //istediğimizi belirtiyoruz.
+             cancelButtonText={'İptal'}
+             selectButtonText={'Seç'}
+             selectedTitleStyle={{color:'#2C5530'}}
+             searchPlaceHolderText={'Arama'}
+             listEmptyTitle={'Veri Yok'}
+             //listEmptyTitle ile herhangi bir veri yoksa ne yazacağını belirledik
+             
+            />
+                <View style={{justifyContent:'center',alignItems:'center',flexDirection:'row'}}>
+                    <TouchableOpacity style={styles.ingredientsbutton} onPress={()=>this.setState({showSelect:false})}>
+                        <Ionicons name="ios-arrow-back-outline" size={28} color="#2C5530" />
+                        <Text style={{color:'#2C5530',fontWeight:'600',fontSize:16}}>Geri</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.ingredientsbutton} onPress={()=>this._getIngredientsMeal(this.state.searchingredientlist)}>
+                        <Octicons name="search" size={24} color="#2C5530" />
+                        <Text style={{color:'#2C5530',fontWeight:'600',fontSize:16}}>Yemek Bul</Text>
+                    </TouchableOpacity>
+                </View>  
+            </View>
+            </Root>     
+              
+             )
+        }
         return (
             <Root>
-            <View style={styles.menu}>
+            <View style={[styles.menu,{display:this.state.showMenu}]}>
                 <Modal
                     animationType="fade"
                     transparent={true}
@@ -111,6 +215,7 @@ class Menu extends Component {
                         </View>
                     </View>
                 </Modal>
+               
                 <View style={{justifyContent:'flex-start',flexDirection:'row'}}>
                 <TouchableOpacity onPress={()=>this.setState({isModalVisible:true})}>
                     <View style={styles.menu_item}>
@@ -122,7 +227,7 @@ class Menu extends Component {
                         </View>     
                     </View>
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={()=>this.setState({showSelect:true})}>
                     <View style={styles.menu_item}>
                        <View style={styles.menu_content}>
                        <MaterialCommunityIcons name="spoon-sugar" size={40} color="#2C5530" />
@@ -190,7 +295,7 @@ const styles=StyleSheet.create({
         justifyContent:'space-evenly',
         alignItems:'center',
         marginTop:height*0.12,
-        
+       
     },
     
     menu_item:{
@@ -265,6 +370,16 @@ const styles=StyleSheet.create({
           justifyContent:'center',
           alignItems:'center'
 
+      },
+      ingredientsbutton:{
+        backgroundColor:'#D4F2DB',
+        width:width*0.40,
+        marginLeft:10,
+        height:height*0.1,
+        marginTop:height*0.1,
+        justifyContent:'center',
+        alignItems:'center',
+        borderRadius:20
       }
 })
 

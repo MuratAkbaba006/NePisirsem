@@ -11,6 +11,9 @@ import ChangePassword from './Screens/ChangePassword';
 import ChangeEmail from './Screens/ChangeEmail';
 import FavsMeal from './Screens/FavsMeal';
 import PersonelInformation from './Screens/PersonelInformation';
+import Slider from './Screens/Slider';
+import MealDetail from './Screens/MealDetail'
+
 const AuthenticateStack=createStackNavigator({
     Login:{
         screen:Login,
@@ -68,6 +71,20 @@ const AppStack=createStackNavigator({
             headerTitle:''
         }
     },
+    Slider:{
+        screen:Slider,
+        navigationOptions:{
+            headerTransparent:true,
+            headerTitle:''
+        }
+    },
+    MealDetail:{
+        screen:MealDetail,
+        navigationOptions:{
+            headerTransparent:true,
+            headerTitle:''
+        }
+    }
     
 })
 

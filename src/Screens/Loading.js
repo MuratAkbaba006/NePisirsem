@@ -12,7 +12,6 @@ class Loading extends Component {
     render() {
         return (
             <SafeAreaView>
-                <Text>kasmklda</Text>
             </SafeAreaView>
         )
     }
