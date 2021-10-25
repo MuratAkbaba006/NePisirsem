@@ -1,3 +1,3 @@
 # NePisirsem
-![Screenshot_2021-09-20-00-12-18](https://user-images.githubusercontent.com/44754934/138769799-af4a4d15-a52d-4ef7-b548-fa818afd05cb.png =250*250)
 
+<img src="https://user-images.githubusercontent.com/44754934/138770234-3c7a2b78-a587-446c-96df-267a0de94649.png" width="100" height="100">
